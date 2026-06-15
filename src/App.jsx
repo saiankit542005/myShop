@@ -1,8 +1,8 @@
 import React from "react";
 import Header from './components/Header'
-import Product from './components/Product'
+import Product from './pages/Product'
 import { Routes, Route } from "react-router-dom";
-import Home from './components/Home'
+import Home from './pages/Home'
 import CartList from "./components/CartList";
 
 const App = () => {

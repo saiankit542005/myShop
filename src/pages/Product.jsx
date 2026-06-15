@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/ProductSlice";
 import { useEffect } from "react";
-import Card from "./Card";
+import Card from "../components/Card";
 
 const Product = () => {
   const dispatch = useDispatch(); 
