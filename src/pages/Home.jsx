@@ -154,7 +154,7 @@ const Home = () => {
           <div className="relative hidden lg:block">
             <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-blue-500/20 blur-2xl" />
 
-            <div className="relative grid grid-cols-2 gap-4">
+            <div className="relative grid grid-cols-2 gap-2">
               {items.slice(0, 4).map((item, index) => (
                 <Link
                   key={item.id}
