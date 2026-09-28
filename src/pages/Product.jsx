@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/ProductSlice";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Card from "../components/Card";
 
 const Product = () => {
@@ -11,40 +12,73 @@ const Product = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [searchParams] = useSearchParams();
+
+  // ============================================================
+  // FETCH PRODUCTS
+  // ============================================================
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    if (status === "idle") {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, status]);
 
-  // Get unique categories
+  // ============================================================
+  // CATEGORY FROM URL
+  // Example:
+  // /products?category=smartphones
+  // ============================================================
+
+  useEffect(() => {
+    const urlCategory = searchParams.get("category");
+
+    if (urlCategory) {
+      setCategory(urlCategory);
+
+      // Automatically open filters on mobile
+      setShowFilters(true);
+    }
+  }, [searchParams]);
+
+  // ============================================================
+  // GET UNIQUE CATEGORIES
+  // ============================================================
+
   const categories = useMemo(() => {
-    const uniqueCategories = [...new Set(items.map((item) => item.category))];
-
-    return uniqueCategories;
+    return [...new Set(items.map((item) => item.category))];
   }, [items]);
 
-  // Search + filter + sort
+  // ============================================================
+  // SEARCH + CATEGORY + SORT
+  // ============================================================
+
   const filteredProducts = useMemo(() => {
     let products = [...items];
 
-    // Search
+    // ---------------- SEARCH ----------------
+
     if (search.trim()) {
-      const searchText = search.toLowerCase();
+      const searchText = search.toLowerCase().trim();
 
       products = products.filter(
         (item) =>
-          item.title.toLowerCase().includes(searchText) ||
-          item.description.toLowerCase().includes(searchText) ||
+          item.title?.toLowerCase().includes(searchText) ||
+          item.description?.toLowerCase().includes(searchText) ||
           item.category?.toLowerCase().includes(searchText),
       );
     }
 
-    // Category
+    // ---------------- CATEGORY ----------------
+
     if (category !== "all") {
       products = products.filter((item) => item.category === category);
     }
 
-    // Sort
+    // ---------------- SORT ----------------
+
     if (sortBy === "price-low") {
       products.sort((a, b) => a.price - b.price);
     }
@@ -64,27 +98,45 @@ const Product = () => {
     return products;
   }, [items, search, category, sortBy]);
 
-  // Loading UI
+  // ============================================================
+  // CLEAR FILTERS
+  // ============================================================
+
+  const clearFilters = () => {
+    setSearch("");
+    setCategory("all");
+    setSortBy("default");
+  };
+
+  // ============================================================
+  // LOADING UI
+  // ============================================================
+
   if (status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
+          {/* Loading Header */}
           <div className="mb-8">
             <div className="h-8 w-56 animate-pulse rounded-lg bg-gray-200" />
+
             <div className="mt-3 h-4 w-80 animate-pulse rounded bg-gray-200" />
           </div>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, index) => (
+          {/* Loading Cards */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {Array.from({ length: 10 }).map((_, index) => (
               <div
                 key={index}
                 className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
               >
                 <div className="aspect-square animate-pulse bg-gray-200" />
 
-                <div className="space-y-3 p-5">
+                <div className="space-y-3 p-4 sm:p-5">
                   <div className="h-5 animate-pulse rounded bg-gray-200" />
+
                   <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200" />
+
                   <div className="h-10 animate-pulse rounded bg-gray-200" />
                 </div>
               </div>
@@ -95,7 +147,10 @@ const Product = () => {
     );
   }
 
-  // Error UI
+  // ============================================================
+  // ERROR UI
+  // ============================================================
+
   if (status === "failed") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
@@ -114,7 +169,7 @@ const Product = () => {
 
           <button
             onClick={() => dispatch(fetchProducts())}
-            className="mt-6 rounded-xl bg-blue-600 px-6 py-2.5 font-semibold text-white transition hover:bg-blue-700"
+            className="mt-6 rounded-xl bg-blue-600 px-6 py-2.5 font-semibold text-white transition hover:bg-blue-700 active:scale-95"
           >
             Try Again
           </button>
@@ -123,14 +178,64 @@ const Product = () => {
     );
   }
 
+  // ============================================================
+  // MAIN UI
+  // ============================================================
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Toolbar */}
-        <div className="sticky top-0 z-20 mb-8 rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-sm backdrop-blur">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Search */}
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* ======================================================
+            TOOLBAR
+        ====================================================== */}
+
+        <div className="sticky top-0 z-20 mb-6 rounded-2xl border border-gray-200 bg-white/95 p-4 shadow-sm backdrop-blur">
+          {/* ====================================================
+              MOBILE FILTER HEADER
+          ==================================================== */}
+
+          <div className="flex items-center justify-between lg:hidden">
+            <div>
+              <h2 className="text-base font-semibold text-gray-800">
+                Product Filters
+              </h2>
+
+              <p className="mt-0.5 text-xs text-gray-500">
+                Search, category & sort
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowFilters((previous) => !previous)}
+              className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
+            >
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </button>
+          </div>
+
+          {/* ====================================================
+              SEARCH + FILTERS
+
+              Mobile:
+              hidden when showFilters = false
+
+              Desktop:
+              always visible because lg:flex
+          ==================================================== */}
+
+          <div
+            className={`
+              ${showFilters ? "flex" : "hidden"}
+              mt-4 flex-col gap-4
+              lg:mt-0 lg:flex lg:flex-row
+              lg:items-center lg:justify-between
+            `}
+          >
+            {/* ==================================================
+                SEARCH
+            ================================================== */}
+
             <div className="relative w-full lg:max-w-md">
               <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                 🔍
@@ -145,41 +250,53 @@ const Product = () => {
               />
             </div>
 
-            {/* Filters */}
+            {/* ==================================================
+                FILTERS
+            ================================================== */}
+
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex">
-              {/* Category */}
+              {/* CATEGORY */}
+
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="min-w-0 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium capitalize text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="all">All Categories</option>
 
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>
+                  <option key={cat} value={cat} className="capitalize">
                     {cat}
                   </option>
                 ))}
               </select>
 
-              {/* Sort */}
+              {/* SORT */}
+
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                className="min-w-0 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
                 <option value="default">Sort By</option>
+
                 <option value="price-low">Price: Low to High</option>
+
                 <option value="price-high">Price: High to Low</option>
+
                 <option value="rating">Highest Rated</option>
+
                 <option value="name">Name: A-Z</option>
               </select>
             </div>
           </div>
 
-          {/* Result info */}
-          <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between">
-            <p>
+          {/* ====================================================
+              RESULT INFORMATION
+          ==================================================== */}
+
+          <div className="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-gray-500">
               Showing{" "}
               <span className="font-semibold text-gray-900">
                 {filteredProducts.length}
@@ -191,14 +308,13 @@ const Product = () => {
               products
             </p>
 
+            {/* CLEAR FILTERS */}
+
             {(search || category !== "all" || sortBy !== "default") && (
               <button
-                onClick={() => {
-                  setSearch("");
-                  setCategory("all");
-                  setSortBy("default");
-                }}
-                className="font-semibold text-blue-600 hover:text-blue-700"
+                type="button"
+                onClick={clearFilters}
+                className="self-start font-semibold text-blue-600 hover:text-blue-700 sm:self-auto"
               >
                 Clear filters
               </button>
@@ -206,7 +322,24 @@ const Product = () => {
           </div>
         </div>
 
-        {/* Empty State */}
+        {/* ======================================================
+            SELECTED CATEGORY
+        ====================================================== */}
+
+        {category !== "all" && (
+          <div className="mb-5 flex items-center gap-2 text-sm text-gray-600">
+            <span>Category:</span>
+
+            <span className="rounded-full bg-blue-100 px-3 py-1 font-semibold capitalize text-blue-700">
+              {category}
+            </span>
+          </div>
+        )}
+
+        {/* ======================================================
+            EMPTY STATE
+        ====================================================== */}
+
         {filteredProducts.length === 0 ? (
           <div className="flex min-h-[350px] items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center">
             <div>
@@ -221,20 +354,20 @@ const Product = () => {
               </p>
 
               <button
-                onClick={() => {
-                  setSearch("");
-                  setCategory("all");
-                  setSortBy("default");
-                }}
-                className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+                type="button"
+                onClick={clearFilters}
+                className="mt-5 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 active:scale-95"
               >
                 Reset Filters
               </button>
             </div>
           </div>
         ) : (
-          /* Product Grid */
-          <div className="grid  sm:gap-5 sm:p-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          /* ====================================================
+              PRODUCT GRID
+          ==================================================== */
+
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 sm:p-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {filteredProducts.map((item) => (
               <Card key={item.id} item={item} />
             ))}
