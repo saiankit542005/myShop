@@ -92,7 +92,7 @@ my-shop/
 ├── src/
 │   ├── components/
 │   │   ├── Card.jsx
-│   │   ├── CardList.jsx
+│   │   ├── CartList.jsx
 │   │   ├── Header.jsx
 │   │   └── AddToCart.jsx
 │   ├── pages/
