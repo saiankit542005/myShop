@@ -15,7 +15,7 @@ const App = () => {
          <Route path="/cart" element={<CartList />} />
       </Routes>
     </div>
-  );  
+  );
 };
 
 export default App;

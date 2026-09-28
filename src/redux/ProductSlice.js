@@ -3,6 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 export const fetchProducts = createAsyncThunk("products", async () => {
   let response = await fetch("https://dummyjson.com/products?limit=300");
   response = await response.json();
+  console.log(response);
   return response.products;
 });
 
@@ -15,6 +16,7 @@ const initialState = {
 const productSlice = createSlice({
   name: "productSlice",
   initialState,
+  
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.pending, (state) => {

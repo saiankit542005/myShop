@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Card from "../components/Card";
 
 const Product = () => {
-  const dispatch = useDispatch(); 
+  const dispatch = useDispatch();
 
   // ✅ Get all required state
   const { items, status, error } = useSelector((state) => state.products);

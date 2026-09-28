@@ -1,12 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// const initialState = {
-//   items: localStorage.getItem("apicart")
-//     ? JSON.parse(localStorage.getItem("apicart"))
-//     : [],
-// };
-
-//✅Batter
 const cartData = localStorage.getItem("apicart");
 
 const initialState = {
@@ -17,9 +10,9 @@ const initialState = {
 const addToCart = createSlice({
   name: "apicart",
   initialState,
+  
   reducers: {
     addItem: (state, action) => {
-      console.log(action.payload);
       state.items.push(action.payload);
       localStorage.setItem("apicart", JSON.stringify(state.items));
     },
@@ -33,6 +26,7 @@ const addToCart = createSlice({
     },
     clearAllItems: (state) => {
       state.items = [];
+      localStorage.removeItem("apicart");
     },
   },
 });
