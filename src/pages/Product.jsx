@@ -21,10 +21,8 @@ const Product = () => {
   // ============================================================
 
   useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchProducts());
-    }
-  }, [dispatch, status]);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   // ============================================================
   // CATEGORY FROM URL
