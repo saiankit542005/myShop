@@ -178,7 +178,7 @@ const Home = () => {
 
                     <div className="mt-1 flex items-center justify-between">
                       <span className="text-sm font-bold text-blue-300">
-                        ₹{item.price}
+                        ₹{(item.price * 90).toFixed(2)}
                       </span>
 
                       <span className="flex items-center gap-1 text-xs text-yellow-300">

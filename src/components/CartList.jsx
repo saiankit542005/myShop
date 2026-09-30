@@ -77,7 +77,7 @@ const CartList = () => {
 
   // Total cart price
   const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * (item.quantity || 1),
+    (total, item) => total + (item.price * 80)*(item.quantity || 1),
     0,
   );
 
@@ -120,7 +120,7 @@ const CartList = () => {
           <div className="space-y-4">
             {cartItems.map((item) => {
               const quantity = item.quantity || 1;
-              const itemTotal = item.price * quantity;
+              const itemTotal = item.price * quantity * 80;
 
               return (
                 <div
@@ -143,11 +143,18 @@ const CartList = () => {
                         </h3>
 
                         <p className="text-gray-500 text-sm mt-1">
-                          ${item.price.toFixed(2)} each
+                          {new Intl.NumberFormat("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                          }).format(item.price * 80)}
+                          each
                         </p>
 
                         <p className="text-green-600 font-bold text-lg mt-1">
-                          ${itemTotal.toFixed(2)}
+                          {new Intl.NumberFormat("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                          }).format(itemTotal)}
                         </p>
                       </div>
                     </div>
@@ -208,14 +215,22 @@ const CartList = () => {
 
             <div className="flex justify-between text-gray-600 mb-3">
               <span>Subtotal</span>
-              <span>${totalPrice.toFixed(2)}</span>
+              <span>
+                {new Intl.NumberFormat("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                }).format(totalPrice)}
+              </span>
             </div>
 
             <div className="border-t pt-4 flex justify-between items-center">
               <span className="text-xl font-bold text-gray-800">Total</span>
 
               <span className="text-2xl font-bold text-green-600">
-                ${totalPrice.toFixed(2)}
+                {new Intl.NumberFormat("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                }).format(totalPrice)}
               </span>
             </div>
 

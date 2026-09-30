@@ -6,16 +6,13 @@ const Card = ({ item }) => {
 
   const cartItems = useSelector((state) => state.apicart.items);
 
-  const isInCart = cartItems.some(
-    (cartItem) => cartItem.id === item.id
-  );
+  const isInCart = cartItems.some((cartItem) => cartItem.id === item.id);
+  const priceInRupees = item.price * 80;
 
   return (
     <div className="group flex h-full min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg sm:rounded-2xl">
-
       {/* ================= IMAGE ================= */}
       <div className="relative overflow-hidden bg-gray-100">
-
         <img
           src={item.thumbnail}
           alt={item.title}
@@ -38,7 +35,6 @@ const Card = ({ item }) => {
 
       {/* ================= CONTENT ================= */}
       <div className="flex flex-1 flex-col p-2.5 sm:p-4">
-
         {/* Category */}
         {item.category && (
           <p className="mb-1.5 truncate text-[9px] font-bold uppercase tracking-wide text-blue-600 sm:mb-2 sm:text-xs">
@@ -53,11 +49,13 @@ const Card = ({ item }) => {
 
         {/* ================= PRICE + STOCK ================= */}
         <div className="mt-2 flex flex-col gap-1 sm:mt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-
           {/* Price */}
           <div className="min-w-0">
             <p className="truncate text-base font-bold text-green-600 sm:text-xl">
-              ₹{item.price}
+              {new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: "INR",
+              }).format(priceInRupees)}
             </p>
 
             {item.discountPercentage > 0 && (
@@ -78,16 +76,13 @@ const Card = ({ item }) => {
                     : "text-red-500"
               }`}
             >
-              {item.stock > 0
-                ? `${item.stock} left`
-                : "Out of stock"}
+              {item.stock > 0 ? `${item.stock} left` : "Out of stock"}
             </span>
           )}
         </div>
 
         {/* ================= CART BUTTON ================= */}
         <div className="mt-auto pt-3 sm:pt-5">
-
           {isInCart ? (
             <button
               type="button"
@@ -107,9 +102,7 @@ const Card = ({ item }) => {
                   : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-400"
               }`}
             >
-              {item.stock === 0
-                ? "Out of Stock"
-                : "Add to Cart"}
+              {item.stock === 0 ? "Out of Stock" : "Add to Cart"}
             </button>
           )}
         </div>
